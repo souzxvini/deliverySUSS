@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+	<head th:replace="~{templates :: head}"></head>
+
+	<body>
+	
+		<div th:replace="~{templates :: header}"></div>
+		
+		<div class="container text-center">
+		
+			<div class="mb-2">
+				<div th:if="${user.foto == null}">
+					<a th:href="@{/admin/user/detalhes}" class="btn btn-outline-dark" style="border-radius: 50%"><i class="fas fa-user" style="font-size: 3em;"></i></a>
+				</div>
+				<div th:if="${user.foto != null}">
+					<img class="p-0 m-0 img-perfil-grande shadow-nova-branca" alt="Image" th:src="@{/admin/user/imagem/{id}(id=${user.id})}"/>
+				</div>
+				<h4>Editar dados pessoais</h4>
+			</div>
+				
+				
+				
+				<form class="card-body"th:object="${user}" th:action="@{/admin/user/atualizar}" method="post" enctype="multipart/form-data">	
+					<input class="form-control shadow-nova" type="hidden" th:field="*{id}" name="id" />
+					
+					<div class="form-floating mb-3" style="text-align: left">
+						<input class="form-control shadow-nova" type="text" th:field="*{nome}" onkeypress="return apenasLetras();" required/>
+						<label for="nome">Primeiro nome</label>
+					</div>
+						
+					
+					<div class="form-floating mb-3" style="text-align: left">
+						<input class="form-control shadow-nova" type="text" th:field="*{sobrenome}" onkeypress="return apenasLetras();" required/>
+						<label for="sobrenome">Último nome</label>
+					</div>
+						
+					<div class="form-floating mb-3" style="text-align: left">
+						<input class="form-control shadow-nova" type="text" th:field="*{cpf}" minlength="15" maxlength="11" onkeypress="return onlynumber();" onblur="validarCPF(this)" required/>
+						<label for="cpf">CPF</label>
+					</div>
+					
+					<div class="form-floating mb-3" style="text-align: left">
+						<input class="form-control shadow-nova" type="text" th:field="*{codSus}" minlength="15" maxlength="15" onkeypress="return onlynumber();" required/>
+						<label for="codSus">Cartão Nacional de Saúde</label>
+					</div>
+							
+					<div class="form-floating mb-3" style="text-align: left">
+						<input class="form-control shadow-nova" type="text" th:field="*{endereco}" required/>
+						<label for="endereco">Endereço</label>
+					</div>
+					
+					<div class="form-floating mb-3" style="text-align: left">
+						<input class="form-control shadow-nova" type="email" th:field="*{email}" required/>
+						<label for="email">Email</label>
+					</div>
+							
+					<div class="form-floating mb-3"style="text-align: left">
+						<select class="form-select shadow-nova mb-3" name="regiaoField" required>
+							<option class="text-transparent" th:text="${user.regiao.nome}" selected></option>
+							<option  th:each="regiao : ${regioes}" th:text="${regiao.nome}" ></option>
+						</select>	
+						<label class="col-form-label">Região</label>
+					</div>
+						
+					<div class="mb-3">
+						<button type="submit" class="btn btn-outline-success card-button" style="width: 100%">Atualizar dados pessoais</button>
+					</div>
+					
+					<div class="mb-3">
+						<a class="btn btn-outline-danger card-button" th:href="@{/admin/user/detalhes}"  style="width: 100%">Voltar</a>
+					</div>
+			</form>
+		</div>
+		<footer th:replace="~{templates :: footer}"></footer>
+		<script>
+		function onlynumber(evt) {
+			   var theEvent = evt || window.event;
+			   var key = theEvent.keyCode || theEvent.which;
+			   key = String.fromCharCode( key );
+			   //var regex = /^[0-9.,]+$/;
+			   var regex = /^[0-9.]+$/;
+			   if( !regex.test(key) ) {
+			      theEvent.returnValue = false;
+			      if(theEvent.preventDefault) theEvent.preventDefault();
+			   }
+			}
+		
+		function apenasLetras(e, t) {
+		    try {
+		        if (window.event) {
+		            var charCode = window.event.keyCode;
+		        } else if (e) {
+		            var charCode = e.which;
+		        } else {
+		            return true;
+		        }
+		        if (
+		            (charCode > 64 && charCode < 91) || 
+		            (charCode > 96 && charCode < 123) ||
+		            (charCode > 191 && charCode <= 255) // letras com acentos
+		        ){
+		            return true;
+		        } else {
+		            return false;
+		        }
+		    } catch (err) {
+		        alert(err.Description);
+		    }
+		}
+		function _cpf(cpf) {
+		    cpf = cpf.replace(/[^\d]+/g, '');
+		    if (cpf == '') return false;
+		    if (cpf.length != 11 ||
+		        cpf == "00000000000" ||
+		        cpf == "11111111111" ||
+		        cpf == "22222222222" ||
+		        cpf == "33333333333" ||
+		        cpf == "44444444444" ||
+		        cpf == "55555555555" ||
+		        cpf == "66666666666" ||
+		        cpf == "77777777777" ||
+		        cpf == "88888888888" ||
+		        cpf == "99999999999")
+		        return false;
+		    add = 0;
+		    for (i = 0; i < 9; i++)
+		        add += parseInt(cpf.charAt(i)) * (10 - i);
+		    rev = 11 - (add % 11);
+		    if (rev == 10 || rev == 11)
+		        rev = 0;
+		    if (rev != parseInt(cpf.charAt(9)))
+		        return false;
+		    add = 0;
+		    for (i = 0; i < 10; i++)
+		        add += parseInt(cpf.charAt(i)) * (11 - i);
+		    rev = 11 - (add % 11);
+		    if (rev == 10 || rev == 11)
+		        rev = 0;
+		    if (rev != parseInt(cpf.charAt(10)))
+		        return false;
+		    return true;
+		}
+		
+		function validarCPF(el){
+			  if( !_cpf(el.value) ){
+
+			    alert("CPF inválido! Insira novamente");
+
+			    
+			    el.value = "";
+			  }
+			}
+		</script>
+	</body>
+</html>
